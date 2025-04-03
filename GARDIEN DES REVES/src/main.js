@@ -1,24 +1,23 @@
 import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+// Importer Babylon.js et la fonction de création de scène
+import { Engine } from "@babylonjs/core";
+import { createScene } from "./scenes/MainScene.js";
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+// Récupérer le canvas dans ton index.html
+const canvas = document.getElementById("gameCanvas");
 
-setupCounter(document.querySelector('#counter'))
+// Créer le moteur Babylon.js
+const engine = new Engine(canvas, true);
+
+// Créer la scène en appelant notre fonction dédiée
+const scene = createScene(engine, canvas);
+
+// Démarrer la boucle de rendu
+engine.runRenderLoop(() => {
+    scene.render();
+});
+
+// Assurer le redimensionnement du canvas lors du resize de la fenêtre
+window.addEventListener("resize", () => {
+    engine.resize();
+});

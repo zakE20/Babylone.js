@@ -1,23 +1,48 @@
-import './style.css'
-// Importer Babylon.js et la fonction de création de scène
-import { Engine } from "@babylonjs/core";
-import { createScene } from "./scenes/MainScene.js";
+import {
+    Engine,
+} from '@babylonjs/core';
+import '@babylonjs/loaders';
 
-// Récupérer le canvas dans ton index.html
-const canvas = document.getElementById("gameCanvas");
+import { SceneManager }  from './systems/sceneManager.js';
+import { InputManager }  from './systems/inputManager.js';
+import { Player }        from './characters/player.js';
+import { Enemy }         from './characters/enemy.js';
+import { CombatManager } from './systems/combatManager.js';
+import { PuzzleManager } from './systems/puzzleManager.js';
+import { SoundManager }  from './systems/soundManager.js';
+import { UIManager }     from './systems/uiManager.js';
 
-// Créer le moteur Babylon.js
+// On récupère directement le <canvas> en le typant et en vérifiant
+const canvas = document.getElementById('renderCanvas');
+if (!(canvas instanceof HTMLCanvasElement)) {
+    throw new Error('Canvas #renderCanvas introuvable ou n’est pas un <canvas> !');
+}
+
+// On dispose maintenant d’un seul canvas, plus de variable redondante
 const engine = new Engine(canvas, true);
 
-// Créer la scène en appelant notre fonction dédiée
-const scene = createScene(engine, canvas);
+// Création de la scène + environnement
+const { scene, environment } = SceneManager.createMainScene(engine);
 
-// Démarrer la boucle de rendu
+// Instanciation des managers et des entités
+const inputManager  = new InputManager(scene);
+const player        = new Player(scene, inputManager);
+const enemy         = new Enemy(scene);
+SceneManager.createPlayerCamera(scene, player);
+const soundManager  = new SoundManager(scene);
+const uiManager     = new UIManager();
+const combatManager = new CombatManager(scene, player, enemy, soundManager, uiManager);
+const puzzleManager = new PuzzleManager(scene, player, environment.lever, environment.wall, soundManager, uiManager);
+
+// Message d’accueil
+uiManager.showMessage("Utilisez les flèches, Espace pour attaquer, et cliquez sur le levier !", 5000);
+
+// Boucle de rendu
 engine.runRenderLoop(() => {
+    player.update();
+    enemy.update();
+    combatManager.update();
     scene.render();
 });
 
-// Assurer le redimensionnement du canvas lors du resize de la fenêtre
-window.addEventListener("resize", () => {
-    engine.resize();
-});
+window.addEventListener('resize', () => engine.resize());

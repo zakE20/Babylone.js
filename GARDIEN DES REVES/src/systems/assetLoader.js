@@ -1,4 +1,4 @@
-import {AssetsManager, Sound} from '@babylonjs/core';
+import { AssetsManager, Sound } from '@babylonjs/core';
 
 export class AssetLoader {
     constructor(scene, rootUrl = '/public/') {
@@ -12,18 +12,12 @@ export class AssetLoader {
     }
 
     addMesh(name, meshesNames, rootDir, filename) {
-        this.assetsManager.addMeshTask(
-            name, meshesNames, this.rootUrl + rootDir, filename
-        );
+        this.assetsManager.addMeshTask(name, meshesNames, this.rootUrl + rootDir, filename);
     }
 
     addSound(name, filepath, options = {}) {
-        const task = this.assetsManager.addBinaryFileTask(
-            name, this.rootUrl + filepath
-        );
-        task.onSuccess = () => {
-            task.sound = new Sound(name, this.rootUrl + filepath, this.scene, null, options);
-        };
+        const task = this.assetsManager.addBinaryFileTask(name, this.rootUrl + filepath);
+        task.onSuccess = () => { task.sound = new Sound(name, this.rootUrl + filepath, this.scene, null, options); };
     }
 
     loadAll() {

@@ -2,5 +2,3 @@
 *.blend1
 *.rar
 *.zip
-dist/
-node_modules/

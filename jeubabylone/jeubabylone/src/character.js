@@ -4,6 +4,7 @@ import * as GUI from "@babylonjs/gui";
 export default class Character {
     constructor(game) {
         this.game = game;
+         this.engine = game;
         this.scene = game.scene;
         this.camera = game.camera;
         this.camera.position.z = 5;
@@ -16,19 +17,16 @@ export default class Character {
         this.currentWeapon = 0;
         this.cameraImpostor = this.camera.getChildren();
         this.hud = game.hud;
-        this.scoreText = new GUI.TextBlock();
 
         this.debug = false;
-        this.score = 0;
-        this.scoreText = new GUI.TextBlock();
-        this.scoreText.color = "white";
-        this.scoreText.fontSize = 24;
-        this.scoreText.text = "Score: 0";
-        this.scoreText.top = "10px";
-        this.scoreText.left = "10px";
-        this.scoreText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        this.scoreText.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        game.hudTexture.addControl(this.scoreText);    }
+        this.healthBar = this.hud[0];
+    this.energyBar = this.hud[1];
+    this.ammoBar = this.hud[2];
+    this.scoreBar = this.hud[3];
+
+    this.score = 0;
+    this.scoreBar.text = "Score: 0";
+  }
 
     healthUp() {
         if (this.health < 20) {
@@ -69,7 +67,8 @@ export default class Character {
 
     addScore(points) {
         this.score += points;
-        this.scoreText.text = "Score: " + this.score;
+     this.scoreBar.text = "Score: " + this.score;
+      console.log("Score updated: ", this.score);
     }
 
     ammoUp(weapon) {
@@ -222,6 +221,12 @@ export default class Character {
 }
 
 function weaponSwitch(gunLoadout, currentWeapon) {
-    gunLoadout.forEach(w => w.mesh.setEnabled(false));
-    gunLoadout[currentWeapon].mesh.setEnabled(true);
+    gunLoadout.forEach(w => {
+        if (w.mesh) w.mesh.setEnabled(false);
+    });
+
+    if (gunLoadout[currentWeapon] && gunLoadout[currentWeapon].mesh) {
+        gunLoadout[currentWeapon].mesh.setEnabled(true);
+    }
 }
+

@@ -120,8 +120,9 @@ export default class Zombie{
     destroy(){       
         let mesh = this.mesh;                              
         mesh.setEnabled(false); // Works cause mesh.dispose() breaks collisions   
-        this.player.addScore(10);
         this.destroyed = true;         
+
+        this.player.addScore(10);
     }    
 }
 

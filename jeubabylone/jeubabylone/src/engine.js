@@ -52,9 +52,13 @@ export default class Engine{
         this.cameraImpostor.parent = this.camera;
         this.cameraImpostor.isPickable = false;    
        // HUD setup
-            const hud = this.hudManager();
+          const hud = this.hudManager();
              this.hud = hud.components;     
                 this.hudTexture = hud.texture;
+                this.healthBar = this.hud[0];
+            this.energyBar = this.hud[1];
+            this.ammoBar = this.hud[2];
+        this.scoreBar = this.hud[3];
         // Particle system setup
         this.particleSystem = new BABYLON.ParticleSystem("particles", 2000, this.scene);
         this.particleSystem.particleTexture = new BABYLON.Texture("../assets/textures/flare.png", this.scene);
@@ -70,11 +74,7 @@ export default class Engine{
 
         //this.scene.fogMode = BABYLON.Scene.FOGMODE_EXP;
         //this.scene.fogDensity = 0.01;
-
-        
-
-
-    }
+        }
 
     assetManager(){
         let camera = this.camera;
@@ -374,6 +374,25 @@ export default class Engine{
         document.addEventListener("mspointerlockchange", pointerlockchange, false);
         document.addEventListener("mozpointerlockchange", pointerlockchange, false);
         document.addEventListener("webkitpointerlockchange", pointerlockchange, false);
+        scene.onBeforeRenderObservable.add(() => {
+    for (let mesh of scene.meshes) {
+        if (mesh.name.startsWith("Pickup_") && mesh.isEnabled()) {
+            const dist = BABYLON.Vector3.Distance(camera.position, mesh.position);
+            if (dist < 3) {
+                const weaponName = mesh.name.replace("Pickup_", "");
+                const weaponIndex = player.gunLoadout.findIndex(w => w.name === weaponName);
+               if (weaponIndex !== -1) {
+    player.currentWeapon = weaponIndex;
+    player.ammoBar.text = String(player.gunLoadout[weaponIndex].ammo);
+    weaponSwitch(player.gunLoadout, player.currentWeapon);
+    console.log("Switched to", weaponName);
+    mesh.setEnabled(false);
+}
+
+            }
+        }
+    }
+    });
     }
 
     hudManager() {        
@@ -413,9 +432,20 @@ export default class Engine{
     ammoBar.top = 350;
     ammoBar.left = -500;
     advancedTexture.addControl(ammoBar);
+    // Score text
+const scoreBar = new GUI.TextBlock();
+scoreBar.color = "white";
+scoreBar.fontSize = 24;
+scoreBar.text = "Score: 0";
+scoreBar.top = "10px";
+scoreBar.left = "10px";
+scoreBar.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+scoreBar.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+advancedTexture.addControl(scoreBar);
+
 
     // Push bars into array
-    hudComponents.push(healthBar, energyBar, ammoBar);
+    hudComponents.push(healthBar, energyBar, ammoBar,scoreBar);
 
     return {
         components: hudComponents,
@@ -478,9 +508,9 @@ function addPistol(player, scene, camera){    // Getting the gun models from the
 
 function addEnemy(enemyList, scene, player){     
     
-    enemyList[0] = new Enemy(scene, "skull", scene.getTransformNodeByName("skull"));
-    enemyList[1] = new Enemy(scene, "skull2", scene.getTransformNodeByName("skull2"));
-    enemyList[2] = new Enemy(scene, "skull3", scene.getTransformNodeByName("skull3"));    
+    enemyList[0] = new Enemy(scene, "skull", scene.getTransformNodeByName("skull"),player);
+    enemyList[1] = new Enemy(scene, "skull2", scene.getTransformNodeByName("skull2"),player);
+    enemyList[2] = new Enemy(scene, "skull3", scene.getTransformNodeByName("skull3"),player);    
     enemyList[3] = new Skeleton(scene, "Skeleton1", scene.getTransformNodeByName("Skeleton1").parent, scene.getTransformNodeByName("SkeletonPosition1").position, player);
     enemyList[4] = new Skeleton(scene, "Skeleton2", scene.getTransformNodeByName("Skeleton2").parent, scene.getTransformNodeByName("SkeletonPosition2").position, player);
     enemyList[5] = new Dragon(scene, "DragonArmature", scene.getTransformNodeByName("DragonArmature").parent, scene.getTransformNodeByName("DragonPosition1").position, player);
@@ -495,8 +525,8 @@ function addEnemy(enemyList, scene, player){
     enemyList[14] = new Dragon(scene, "DragonArmature2", scene.getTransformNodeByName("DragonArmature2").parent, scene.getTransformNodeByName("DragonPosition2").position, player);
     enemyList[15] = new Dragon(scene, "DragonArmature3", scene.getTransformNodeByName("DragonArmature3").parent, scene.getTransformNodeByName("DragonPosition3").position, player);
     enemyList[16] = new Dragon(scene, "DragonArmature4", scene.getTransformNodeByName("DragonArmature4").parent, scene.getTransformNodeByName("DragonPosition4").position, player);
-    enemyList[17] = new Enemy(scene, "skull4", scene.getTransformNodeByName("skull4"));
-    enemyList[18] = new Enemy(scene, "skull5", scene.getTransformNodeByName("skull5"));
+    enemyList[17] = new Enemy(scene, "skull4", scene.getTransformNodeByName("skull4"),player);
+    enemyList[18] = new Enemy(scene, "skull5", scene.getTransformNodeByName("skull5"),player);
 
     //Adding up the move() functions of each enemy to the render ovservable
     for(let i=0; i<enemyList.length; i++){

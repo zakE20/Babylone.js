@@ -5,7 +5,7 @@ import * as GUI from "@babylonjs/gui";
 
 
 export default class Enemy{
-    constructor(scene, name, mesh){
+    constructor(scene, name, mesh,player){
         // Game properties        
         this.scene = scene;
         // Enemy properties
@@ -23,10 +23,8 @@ export default class Enemy{
         
         this.healthBar = enemyHUD(this.scene, this.subMeshes[1]);
         //this.healthBar.isVisible = false;
-        
-       
-        
-    } 
+        this.player = player;
+        } 
     
     setup(){
         for(let i = 0; i<this.subMeshes.length ; i++){
@@ -97,6 +95,9 @@ export default class Enemy{
 
         mesh.setEnabled(false); // mesh.dispose() breaks collisions    
         this.player.addScore(10); 
+        console.log("Enemy destroyed - Score:", this.player.score); // 👈 DEBUG
+        this.player.engine.scoreBar.text = "Score: " + this.player.score;
+
         }  
 }
 

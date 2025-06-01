@@ -1,5 +1,9 @@
 
 # ProjetWebJS
+## Accéder à la plateforme en ligne
+
+[Cliquez ici pour jouer directement sur GitHub Pages](https://zake20.github.io/Babylone.js/)
+
 ## 1. **Space Alien Invaders**
 
 ### Description
